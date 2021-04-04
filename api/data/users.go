@@ -1,10 +1,15 @@
 package data
 
 import (
+	"context"
+	"log"
 	"regexp"
 	"unicode"
 
+	"github.com/Ivan-Jimenez/go-share-a-car/database"
 	"github.com/go-playground/validator/v10"
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/mongo"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -18,6 +23,42 @@ type User struct {
 
 const emailRegex = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
 const passwordRegex = "^(?=.*[\\d\\W])(?=.*[a-z])(?=.*[A-Z]).{8,100}$"
+
+type UserData struct {
+	collection *mongo.Collection
+	logger     *log.Logger
+}
+
+func NewUserData(logger *log.Logger) *UserData {
+	return &UserData{
+		database.Instance.Database.Collection("users"),
+		logger,
+	}
+}
+
+func (data *UserData) SaveUser(ctx context.Context, user *User) (*User, error) {
+	user.ID = ""
+
+	res, err := data.collection.InsertOne(ctx, user)
+	if err != nil {
+		data.logger.Panicf("[ERROR][SaveUser-UserData] %s", err.Error())
+		return nil, err
+	}
+
+	filter := bson.D{{Key: "_id", Value: res.InsertedID}}
+	return data.FindUser(ctx, filter)
+}
+
+func (data *UserData) FindUser(ctx context.Context, filter interface{}) (*User, error) {
+	findUser := data.collection.FindOne(ctx, filter)
+	if err := findUser.Err(); err != nil {
+		return nil, err
+	}
+
+	user := &User{}
+	findUser.Decode(user)
+	return user, nil
+}
 
 func (user *User) Validate() error {
 	validate := validator.New()

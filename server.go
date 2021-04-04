@@ -16,12 +16,12 @@ func setupRoutes(app *fiber.App, l *log.Logger) {
 }
 
 func main() {
-	l := log.New(os.Stdout, "shareacar-api", log.LstdFlags)
+	l := log.New(os.Stdout, "[shareacar-api] ", log.LstdFlags)
 
 	if err := database.Connect(); err != nil {
-		l.Fatal("[ERROR] Faild to connect to database: %s", err)
+		l.Fatal("[ERROR] Faild to connect to database: ", err.Error())
 	}
-	l.Println("[DEBUG] Database connected!!!")
+	l.Println("[INFO] Database connected!!!")
 
 	app := fiber.New()
 	app.Use(logger.New())
