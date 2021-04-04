@@ -78,7 +78,7 @@ func (user *User) HashPassword() error {
 
 func (user *User) DoPasswordMatch(currPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(currPassword))
-	return err != nil
+	return err == nil
 }
 
 func validateEmail(fl validator.FieldLevel) bool {

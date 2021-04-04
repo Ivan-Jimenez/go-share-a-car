@@ -13,6 +13,11 @@ type Users struct {
 	logger *log.Logger
 }
 
+type login struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
 func NewUsers(logger *log.Logger) *Users {
 	return &Users{
 		data.NewUserData(logger),
@@ -49,6 +54,30 @@ func (users *Users) NewUser(c *fiber.Ctx) error {
 		return c.Status(500).SendString(err.Error())
 	}
 	c.Status(201).JSON(user)
+
+	return nil
+}
+
+// TODO(Ivan): Generate token.
+func (users *Users) Login(c *fiber.Ctx) error {
+	credentials := new(login)
+	if err := c.BodyParser(credentials); err != nil {
+		users.logger.Printf("[INFO][Login-Handler] %s", err.Error())
+		return c.Status(400).SendString(err.Error())
+	}
+
+	filter := bson.D{{Key: "email", Value: credentials.Email}}
+	user, err := users.data.FindUser(c.Context(), filter)
+	if err != nil {
+		users.logger.Printf("[INFO][Login-Handler] %s", err.Error())
+		return c.Status(400).SendString("Email or password invalid")
+	}
+
+	if !user.DoPasswordMatch(credentials.Password) {
+		users.logger.Printf("[INFO][Login-Handler] Invalid password")
+		return c.Status(400).SendString("Email or password invalid")
+	}
+	c.Status(200).SendString("Login succeded")
 
 	return nil
 }

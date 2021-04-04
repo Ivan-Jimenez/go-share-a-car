@@ -13,6 +13,8 @@ import (
 func setupRoutes(app *fiber.App, l *log.Logger) {
 	userHandlers := handlers.NewUsers(l)
 	app.Post("/api/v1/user/signup", userHandlers.NewUser)
+
+	app.Post("/api/v1/user/login", userHandlers.Login)
 }
 
 func main() {
