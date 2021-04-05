@@ -13,11 +13,6 @@ type Users struct {
 	logger *log.Logger
 }
 
-type login struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func NewUsers(logger *log.Logger) *Users {
 	return &Users{
 		data.NewUserData(logger),
@@ -60,7 +55,7 @@ func (users *Users) NewUser(c *fiber.Ctx) error {
 
 // TODO(Ivan): Generate token.
 func (users *Users) Login(c *fiber.Ctx) error {
-	credentials := new(login)
+	credentials := new(data.LoginCredentials)
 	if err := c.BodyParser(credentials); err != nil {
 		users.logger.Printf("[INFO][Login-Handler] %s", err.Error())
 		return c.Status(400).SendString(err.Error())

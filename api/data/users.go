@@ -3,7 +3,6 @@ package data
 import (
 	"context"
 	"log"
-	"regexp"
 	"unicode"
 
 	"github.com/Ivan-Jimenez/go-share-a-car/database"
@@ -21,8 +20,10 @@ type User struct {
 	Password string `json:"password" validate:"required,password"`
 }
 
-const emailRegex = "^[a-zA-Z0-9.!#$%&'*+\\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$"
-const passwordRegex = "^(?=.*[\\d\\W])(?=.*[a-z])(?=.*[A-Z]).{8,100}$"
+type LoginCredentials struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
 type UserData struct {
 	collection *mongo.Collection
@@ -79,12 +80,6 @@ func (user *User) HashPassword() error {
 func (user *User) DoPasswordMatch(currPassword string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(currPassword))
 	return err == nil
-}
-
-func validateEmail(fl validator.FieldLevel) bool {
-	re := regexp.MustCompile(emailRegex)
-	matches := re.FindAllString(fl.Field().String(), -1)
-	return len(matches) == 1
 }
 
 func validatePassword(fl validator.FieldLevel) bool {
