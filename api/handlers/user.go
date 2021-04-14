@@ -4,6 +4,7 @@ import (
 	"log"
 
 	"github.com/Ivan-Jimenez/go-share-a-car/api/data"
+	"github.com/Ivan-Jimenez/go-share-a-car/api/util"
 	"github.com/gofiber/fiber/v2"
 	"go.mongodb.org/mongo-driver/bson"
 )
@@ -72,7 +73,19 @@ func (users *Users) Login(c *fiber.Ctx) error {
 		users.logger.Printf("[INFO][Login-Handler] Invalid password")
 		return c.Status(400).SendString("Email or password invalid")
 	}
-	c.Status(200).SendString("Login succeded")
 
+	accToken, refToken := util.GenerateTokens(user.ID)
+	accCookie, refCookie := util.GetAuthCookies(accToken, refToken)
+	c.Cookie(accCookie)
+	c.Cookie(refCookie)
+
+	return c.Status(fiber.StatusOK).JSON(fiber.Map{
+		"accessToken":  accToken,
+		"refreshToken": refToken,
+	})
+}
+
+func (users *Users) EmailVefification(c *fiber.Ctx) error {
+	// TODO(Ivan): Emal vefication
 	return nil
 }
