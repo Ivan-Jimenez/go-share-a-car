@@ -1,4 +1,4 @@
-package data
+package models
 
 import (
 	"context"
@@ -18,11 +18,6 @@ type User struct {
 	LastName string `json:"lastName" validate:"required"`
 	Email    string `json:"email" validate:"required,email"`
 	Password string `json:"password" validate:"required,password"`
-}
-
-type LoginCredentials struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
 }
 
 type UserData struct {

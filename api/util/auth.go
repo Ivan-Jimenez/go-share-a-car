@@ -48,7 +48,7 @@ func GenerateRefreshClaims(cl *Claims) string {
 	return ""
 }
 
-// SecureAuth returns a moddleware which secures all the private rutes.
+// SecureAuth returns a middleware which secures all the private rutes.
 func SecureAuth() func(*fiber.Ctx) error {
 	return func(c *fiber.Ctx) error {
 		accessToken := c.Cookies("access_token")

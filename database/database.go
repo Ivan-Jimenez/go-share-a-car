@@ -20,10 +20,14 @@ var Instance MongoInstance
 
 func Connect() error {
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
+	if err != nil {
+		return err
+	}
 
 	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 	defer cancel()
 
+	// FIXME: This should return an error if the mongo service is not running.
 	err = client.Connect(ctx)
 	database := client.Database(databaseName)
 

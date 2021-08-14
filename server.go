@@ -4,17 +4,17 @@ import (
 	"log"
 	"os"
 
-	"github.com/Ivan-Jimenez/go-share-a-car/api/handlers"
+	"github.com/Ivan-Jimenez/go-share-a-car/api/controllers"
 	"github.com/Ivan-Jimenez/go-share-a-car/database"
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 )
 
 func setupRoutes(app *fiber.App, l *log.Logger) {
-	userHandlers := handlers.NewUsers(l)
-	app.Post("/api/v1/user/signup", userHandlers.NewUser)
+	userController := controllers.NewUserController(l)
+	app.Post("/api/v1/user/signup", userController.NewUser)
 
-	app.Post("/api/v1/user/login", userHandlers.Login)
+	app.Post("/api/v1/user/login", userController.Login)
 }
 
 func main() {
@@ -22,8 +22,9 @@ func main() {
 
 	if err := database.Connect(); err != nil {
 		l.Fatal("[ERROR] Faild to connect to database: ", err.Error())
+	} else {
+		l.Println("[INFO] Database connected!!!")
 	}
-	l.Println("[INFO] Database connected!!!")
 
 	app := fiber.New()
 	app.Use(logger.New())
