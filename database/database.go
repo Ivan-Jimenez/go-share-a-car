@@ -8,15 +8,10 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
-type MongoInstance struct {
-	Client   *mongo.Client
-	Database *mongo.Database
-}
-
 const databaseName = "sharedacardb"
 const mongoURI = "mongodb://localhost/" + databaseName
 
-var Instance MongoInstance
+var Instance mongo.Database
 
 func Connect() error {
 	client, err := mongo.NewClient(options.Client().ApplyURI(mongoURI))
@@ -35,10 +30,6 @@ func Connect() error {
 		return err
 	}
 
-	Instance = MongoInstance{
-		Client:   client,
-		Database: database,
-	}
-
+	Instance = *database
 	return nil
 }
